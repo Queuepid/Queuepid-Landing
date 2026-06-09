@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 15 15 30;
+    --foreground: 245 245 255;
+  }
+
+  html {
+    @apply bg-surface;
+    -webkit-tap-highlight-color: transparent;
+    /* Single-screen landing — no scrolling. */
+    overflow: hidden;
+  }
+
+  body {
+    @apply text-white antialiased;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-qp-400 to-accent-400 bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animation delays for the staggered background blobs */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
