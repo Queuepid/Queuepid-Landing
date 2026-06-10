@@ -315,8 +315,11 @@ h1{
    scrolling the focused field into view above the keyboard. Trade the
    blur for a slightly more opaque fill and allow natural scroll. */
 @media (hover:none) and (pointer:coarse){
-  html,body{overflow:auto;height:auto}
+  html,body{overflow-x:hidden;overflow-y:auto;height:auto}
   body{min-height:100vh;min-height:100svh}
+  /* grid's fit-content sizing makes percentage widths inside main
+     device-dependent; pin it to the viewport so the form centers */
+  main{width:100%}
   .waitlist-box{
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
