@@ -315,10 +315,23 @@ h1{
    scrolling the focused field into view above the keyboard. Trade the
    blur for a slightly more opaque fill and allow natural scroll. */
 @media (hover:none) and (pointer:coarse){
-  html,body{overflow-x:hidden;overflow-y:auto;height:auto}
-  body{min-height:100vh;min-height:100svh}
-  /* grid's fit-content sizing makes percentage widths inside main
-     device-dependent; pin it to the viewport so the form centers */
+  /* Clip horizontally on html — it contains the fixed orbs via the
+     initial containing block, and clip avoids iOS's bug of ignoring
+     overflow-x:hidden when overflow-y is auto on the same element. */
+  html{overflow-x:clip}
+  html,body{height:auto}
+  /* Replace grid centering (fragile auto-track sizing) with flex so the
+     content is pinned to the viewport width and reliably centered. */
+  body{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    min-height:100vh;
+    min-height:100svh;
+    overflow-y:auto;
+  }
   main{width:100%}
   .waitlist-box{
     backdrop-filter:none;
