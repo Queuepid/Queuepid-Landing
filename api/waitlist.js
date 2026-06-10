@@ -99,6 +99,13 @@ export default async function handler(req, res) {
             </td>
           </tr>
           <tr>
+            <td align="center" style="padding-bottom:28px;">
+              <p style="font-size:13px;line-height:1.6;color:#6b6b76;margin:0;background:#f8f8fa;border-radius:8px;padding:12px 16px;">
+                💡 Found this in your Promotions or spam folder? Drag it to your Primary inbox so you don't miss our launch email.
+              </p>
+            </td>
+          </tr>
+          <tr>
             <td align="center">
               <p style="font-size:13px;color:#9a9aa5;margin:0;">
                 — The Queuepid Team
