@@ -68,7 +68,7 @@ export default async function handler(req, res) {
     const { error: emailError } = await resend.emails.send({
       from: 'Queuepid <hello@queuepid.gg>',
       to: [email],
-      subject: "You're on the Queuepid waitlist! 💘",
+      subject: "You're on the Queuepid.gg waitlist! 💘",
       html: `
 <!DOCTYPE html>
 <html>
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border:1px solid #e6e6ec;border-radius:14px;padding:40px 32px;">
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <span style="font-size:30px;font-weight:800;color:#0ea5b7;">Queuepid</span>
+              <span style="font-size:30px;font-weight:800;color:#0ea5b7;">Queuepid.gg</span>
             </td>
           </tr>
           <tr>
