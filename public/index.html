@@ -154,33 +154,136 @@ h1{
   animation:rise .7s cubic-bezier(.2,.7,.2,1) .28s both;
 }
 
-.soon{
+/* ---- waitlist form ---- */
+.waitlist{
   margin-top:2.6rem;
+  animation:rise .7s cubic-bezier(.2,.7,.2,1) .46s both;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.75rem;
+}
+.waitlist-box{
+  display:flex;
+  align-items:center;
+  gap:0;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(34,211,238,.15);
+  border-radius:14px;
+  padding:5px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  transition:border-color .3s,box-shadow .3s;
+  width:min(100%,440px);
+}
+.waitlist-box:focus-within{
+  border-color:rgba(34,211,238,.45);
+  box-shadow:0 0 24px rgba(34,211,238,.1),0 0 60px rgba(99,102,241,.06);
+}
+.waitlist-box input[type="email"]{
+  flex:1;
+  border:none;
+  background:transparent;
+  color:#fff;
+  font-family:'Chakra Petch',system-ui,sans-serif;
+  font-size:.95rem;
+  padding:.75rem 1rem;
+  outline:none;
+  min-width:0;
+}
+.waitlist-box input[type="email"]::placeholder{
+  color:rgba(231,235,255,.3);
+}
+.waitlist-box button{
+  flex-shrink:0;
+  border:none;
+  cursor:pointer;
+  font-family:'Chakra Petch',system-ui,sans-serif;
+  font-weight:600;
+  font-size:.85rem;
+  letter-spacing:.04em;
+  padding:.75rem 1.5rem;
+  border-radius:10px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo));
+  transition:opacity .2s,transform .15s;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:1.1rem;
-  animation:rise .7s cubic-bezier(.2,.7,.2,1) .46s both;
+  gap:.5rem;
+  min-width:130px;
 }
-.soon::before,.soon::after{
-  content:'';
-  height:1px;width:clamp(2rem,8vw,4.5rem);
-  background:linear-gradient(90deg,transparent,rgba(34,211,238,.55));
+.waitlist-box button:hover:not(:disabled){
+  opacity:.88;
+  transform:translateY(-1px);
 }
-.soon::after{transform:scaleX(-1)}
-.soon p{
+.waitlist-box button:active:not(:disabled){
+  transform:translateY(0) scale(.98);
+}
+.waitlist-box button:disabled{
+  cursor:not-allowed;
+  opacity:.6;
+}
+
+/* honeypot — hidden from humans, visible to form-filling bots */
+.hp-field{
+  position:absolute;
+  left:-9999px;
+  width:1px;height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* spinner */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* feedback messages */
+.waitlist-msg{
+  font-size:.82rem;
+  letter-spacing:.02em;
+  min-height:1.4em;
+  transition:opacity .3s;
+}
+.waitlist-msg.error{color:#f87171}
+.waitlist-msg.success{color:var(--cyan)}
+
+/* success state */
+.waitlist-success{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+  animation:rise .5s cubic-bezier(.2,.7,.2,1) both;
+}
+.waitlist-success .check{
+  width:44px;height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo));
+  display:grid;place-items:center;
+}
+.waitlist-success .check svg{
+  width:22px;height:22px;
+  stroke:#fff;stroke-width:2.5;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+.waitlist-success p{
   font-weight:600;
-  font-size:.8rem;
-  text-transform:uppercase;
-  letter-spacing:.45em;
-  text-indent:.45em; /* recenter: tracking adds trailing space */
-  background:linear-gradient(90deg,var(--cyan),var(--indigo),var(--cyan));
-  background-size:200% 100%;
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  animation:shimmer 3.2s linear infinite;
+  font-size:1rem;
+  color:rgba(231,235,255,.85);
 }
+.waitlist-success .sub{
+  font-weight:300;
+  font-size:.82rem;
+  color:rgba(231,235,255,.45);
+}
+
 @keyframes shimmer{
   to{background-position:-200% 0}
 }
@@ -202,8 +305,94 @@ h1{
 <main>
   <h1><span class="glow">Queuepid</span></h1>
   <p class="tagline">Matchmaking for gamers.</p>
-  <div class="soon"><p>Coming Soon</p></div>
+
+  <div class="waitlist" id="waitlist-section">
+    <form class="waitlist-box" id="waitlist-form" autocomplete="off">
+      <input type="email" id="waitlist-email" placeholder="Enter your email" required aria-label="Email address">
+      <input type="text" name="nickname" id="waitlist-nickname" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" id="waitlist-btn">Join Waitlist</button>
+    </form>
+    <p class="waitlist-msg" id="waitlist-msg" aria-live="polite"></p>
+  </div>
 </main>
 <div class="grain"></div>
+
+<script>
+(function() {
+  const form = document.getElementById('waitlist-form');
+  const input = document.getElementById('waitlist-email');
+  const btn = document.getElementById('waitlist-btn');
+  const msg = document.getElementById('waitlist-msg');
+  const section = document.getElementById('waitlist-section');
+
+  function setMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'waitlist-msg ' + (type || '');
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Join Waitlist';
+    }
+  }
+
+  function showSuccess() {
+    section.innerHTML =
+      '<div class="waitlist-success">' +
+        '<div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+        '<p>You\u2019re on the list!</p>' +
+        '<p class="sub">We\u2019ll let you know when Queuepid launches.</p>' +
+      '</div>';
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    setMsg('', '');
+
+    const email = input.value.trim();
+    if (!email) {
+      setMsg('Please enter your email address.', 'error');
+      input.focus();
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          nickname: document.getElementById('waitlist-nickname').value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMsg(data.error || 'Something went wrong. Please try again.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      if (data.alreadySubscribed) {
+        setMsg('You\u2019re already on the waitlist! \ud83d\udc98', 'success');
+        setLoading(false);
+        return;
+      }
+
+      showSuccess();
+    } catch (err) {
+      setMsg('Network error. Please check your connection and try again.', 'error');
+      setLoading(false);
+    }
+  });
+})();
+</script>
 </body>
 </html>
