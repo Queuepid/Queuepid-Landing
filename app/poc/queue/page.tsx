@@ -279,7 +279,7 @@ export default function QueuePage() {
 
   // ── Chatting view ─────────────────────────────────────────────────────────
   return (
-    <AppShell title={partner ? partner.display_name : partnerAlias} hideNav onBack={leaveChat} backLabel="Leave queue">
+    <AppShell title={partner ? partner.display_name : partnerAlias} hideNav onBack={leaveChat} backLabel="New queue">
       <div className="flex flex-col h-[calc(100vh-3.5rem)]">
         {/* Partner game card */}
         <div className="px-4 pt-3 pb-2 shrink-0">
