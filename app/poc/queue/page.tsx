@@ -279,7 +279,7 @@ export default function QueuePage() {
 
   // ── Chatting view ─────────────────────────────────────────────────────────
   return (
-    <AppShell title={partner ? partner.display_name : partnerAlias} hideNav>
+    <AppShell title={partner ? partner.display_name : partnerAlias} hideNav onBack={leaveChat} backLabel="Leave queue">
       <div className="flex flex-col h-[calc(100vh-3.5rem)]">
         {/* Partner game card */}
         <div className="px-4 pt-3 pb-2 shrink-0">
@@ -396,12 +396,6 @@ export default function QueuePage() {
               <Send size={16} />
             </button>
           </div>
-          <button
-            onClick={leaveChat}
-            className="btn-ghost w-full mt-2 text-xs text-white/30 hover:text-red-400"
-          >
-            Leave queue
-          </button>
         </div>
       </div>
     </AppShell>
