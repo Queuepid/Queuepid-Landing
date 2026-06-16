@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import {
-  Shuffle, X, Eye, UserPlus, Send, ChevronDown, ChevronUp, Loader2
-} from 'lucide-react'
+import { Swords, X, Eye, UserPlus, Send, Loader2 } from 'lucide-react'
 import { AppShell } from '../_components/layout/AppShell'
+import { Button } from '../_components/ui/Button'
 import { Chip } from '../_components/ui/Chip'
 import { RangeSlider } from '../_components/ui/RangeSlider'
 import { Avatar } from '../_components/ui/Avatar'
+import { cn } from '../_data/utils'
 import {
   mockPartnerGameProfile,
   mockPartnerRevealedProfile,
@@ -21,29 +21,40 @@ import {
   REGION_LABELS,
   MIC_PREFS,
   MIC_PREF_LABELS,
-  INTENTIONS,
-  INTENTION_LABELS,
+  GENDERS,
   type MicPref,
   type Region,
-  type GameMode,
-  type Intention,
+  type Gender,
+  type RankWindow,
 } from '../_data/types'
 import type { Message } from '../_data/types'
 
 type QueueStatus = 'idle' | 'searching' | 'chatting'
 
+const RANK_WINDOWS: { value: RankWindow; label: string }[] = [
+  { value: 0, label: 'Same tier' },
+  { value: 1, label: '±1' },
+  { value: 2, label: '±2' },
+  { value: 99, label: 'Any' },
+]
+
 export default function QueuePage() {
   const [status, setStatus] = useState<QueueStatus>('idle')
 
-  // Preferences
+  // Preferences (ephemeral, per session) — mirrors Queuepid-Web's queue setup
   const [untrackedSelected, setUntrackedSelected] = useState<string[]>([])
+  const [valorantSelected, setValorantSelected] = useState(false)
+  const [rankWindow, setRankWindow] = useState<RankWindow>(1)
   const [regions, setRegions] = useState<Region[]>(['na'])
-  const [mode, setMode] = useState<GameMode>('any')
   const [mic, setMic] = useState<MicPref>('either')
+  const [gendersWanted, setGendersWanted] = useState<Gender[]>([])
+  const [excludeDuos, setExcludeDuos] = useState(false)
   const [ageMin, setAgeMin] = useState(16)
-  const [ageMax, setAgeMax] = useState(30)
-  const [intentions, setIntentions] = useState<Intention[]>([])
-  const [showFilters, setShowFilters] = useState(false)
+  const [ageMax, setAgeMax] = useState(99)
+  const [ageMinText, setAgeMinText] = useState('16')
+  const [ageMaxText, setAgeMaxText] = useState('99')
+  const [ageMinFocused, setAgeMinFocused] = useState(false)
+  const [ageMaxFocused, setAgeMaxFocused] = useState(false)
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([])
@@ -119,130 +130,307 @@ export default function QueuePage() {
   }
 
   const toggleRegion = (r: Region) => {
-    setRegions((prev) =>
-      prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]
-    )
+    setRegions((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]))
   }
+  const allRegionsSelected = regions.length === REGIONS.length
+  const toggleAllRegions = () => setRegions(allRegionsSelected ? [] : [...REGIONS])
 
-  const toggleGame = (g: string) => {
+  const toggleUntracked = (name: string) => {
     setUntrackedSelected((prev) =>
-      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
     )
   }
+  const allGamesSelected = valorantSelected && untrackedSelected.length === POPULAR_GAMES.length
+  const toggleAllGames = () => {
+    if (allGamesSelected) {
+      setValorantSelected(false)
+      setUntrackedSelected([])
+    } else {
+      setValorantSelected(true)
+      setUntrackedSelected([...POPULAR_GAMES])
+    }
+  }
 
-  const toggleIntention = (i: Intention) => {
-    setIntentions((prev) =>
-      prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]
-    )
+  const isValidAgeMin = (text: string) => {
+    const n = parseInt(text)
+    return !isNaN(n) && n >= 16 && n < ageMax
+  }
+  const isValidAgeMax = (text: string) => {
+    const n = parseInt(text)
+    return !isNaN(n) && n > ageMin && n <= 99
   }
 
   const partner = partnerRevealed ? mockPartnerRevealedProfile : null
   const partnerAlias = mockPartnerGameProfile.alias
 
-  // ── Idle view ─────────────────────────────────────────────────────────────
+  // ── Idle / setup view ─────────────────────────────────────────────────────
   if (status === 'idle') {
     return (
       <AppShell title="Play Queue">
-        <div className="px-4 py-4 space-y-5">
-          {/* Games */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/70 mb-2">Games</h3>
-            <div className="flex flex-wrap gap-2">
-              {POPULAR_GAMES.map((game) => (
-                <Chip
-                  key={game}
-                  label={game}
-                  active={untrackedSelected.includes(game)}
-                  onToggle={() => toggleGame(game)}
-                />
-              ))}
+        <div className="px-4 py-6 space-y-6 pb-32">
+          {/* Header */}
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent-500 to-qp-500 flex items-center justify-center mx-auto mb-4">
+              <Swords size={28} className="text-white" />
             </div>
+            <h2 className="font-display text-xl font-semibold mb-1">Find a duo</h2>
+            <p className="text-sm text-white/40 max-w-xs mx-auto">
+              Match with someone who plays what you play. Rank shows up front; names stay anonymous
+              until you both reveal.
+            </p>
           </div>
 
-          {/* Regions */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/70 mb-2">Regions</h3>
-            <div className="flex flex-wrap gap-2">
-              {REGIONS.map((r) => (
+          {/* Preferences */}
+          <div className="glass p-5 space-y-5">
+            {/* Games */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-white/60">Games to play</label>
+                <button
+                  onClick={toggleAllGames}
+                  className="text-[11px] text-qp-300 hover:text-qp-200 transition-colors"
+                >
+                  {allGamesSelected ? 'Clear' : 'Select all'}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <Chip
-                  key={r}
-                  label={REGION_LABELS[r]}
-                  active={regions.includes(r)}
-                  onToggle={() => toggleRegion(r)}
+                  label="Valorant"
+                  active={valorantSelected}
+                  onToggle={() => setValorantSelected((v) => !v)}
                 />
-              ))}
-            </div>
-          </div>
-
-          {/* Advanced filters (collapsible) */}
-          <div>
-            <button
-              onClick={() => setShowFilters((v) => !v)}
-              className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors"
-            >
-              {showFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              Advanced filters
-            </button>
-
-            {showFilters && (
-              <div className="mt-4 space-y-5">
-                {/* Mode */}
-                <div>
-                  <h3 className="text-sm font-semibold text-white/70 mb-2">Mode</h3>
-                  <div className="flex gap-2">
-                    {(['ranked', 'unrated', 'any'] as GameMode[]).map((m) => (
-                      <Chip key={m} label={m} active={mode === m} onToggle={() => setMode(m)} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mic */}
-                <div>
-                  <h3 className="text-sm font-semibold text-white/70 mb-2">Voice chat</h3>
-                  <div className="flex gap-2">
-                    {MIC_PREFS.map((m) => (
-                      <Chip key={m} label={MIC_PREF_LABELS[m]} active={mic === m} onToggle={() => setMic(m)} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Age range */}
-                <div>
-                  <h3 className="text-sm font-semibold text-white/70 mb-3">
-                    Age range: {ageMin}–{ageMax}
-                  </h3>
-                  <RangeSlider
-                    min={16}
-                    max={50}
-                    valueMin={ageMin}
-                    valueMax={ageMax}
-                    onChangeMin={setAgeMin}
-                    onChangeMax={setAgeMax}
+                {POPULAR_GAMES.map((name) => (
+                  <Chip
+                    key={name}
+                    label={name}
+                    active={untrackedSelected.includes(name)}
+                    onToggle={() => toggleUntracked(name)}
                   />
-                </div>
+                ))}
+              </div>
+            </div>
 
-                {/* Intentions */}
-                <div>
-                  <h3 className="text-sm font-semibold text-white/70 mb-2">Looking for</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {INTENTIONS.map((k) => (
-                      <Chip
-                        key={k}
-                        label={INTENTION_LABELS[k]}
-                        active={intentions.includes(k)}
-                        onToggle={() => toggleIntention(k)}
-                      />
-                    ))}
-                  </div>
+            {/* Rank window — only when Valorant selected */}
+            {valorantSelected && (
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-2">Rank window</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {RANK_WINDOWS.map((w) => (
+                    <button
+                      key={w.value}
+                      onClick={() => setRankWindow(w.value)}
+                      className={`px-2 py-2 rounded-lg border text-xs transition-all ${
+                        rankWindow === w.value
+                          ? 'border-qp-500/50 bg-qp-500/10 text-white'
+                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20'
+                      }`}
+                    >
+                      {w.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
+
+            {/* Region */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-white/60">Region</label>
+                <button
+                  onClick={toggleAllRegions}
+                  className="text-[11px] text-qp-300 hover:text-qp-200 transition-colors"
+                >
+                  {allRegionsSelected ? 'Clear' : 'Select all'}
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {REGIONS.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => toggleRegion(r)}
+                    className={`px-3 py-2 rounded-lg border text-xs transition-all ${
+                      regions.includes(r)
+                        ? 'border-qp-500/50 bg-qp-500/10 text-white'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20'
+                    }`}
+                  >
+                    {REGION_LABELS[r]}
+                  </button>
+                ))}
+              </div>
+              {regions.length === 0 && (
+                <p className="text-[10px] text-white/30 mt-1.5">No regions selected — matching any.</p>
+              )}
+            </div>
+
+            {/* Mic preference */}
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-2">Voice chat</label>
+              <div className="grid grid-cols-3 gap-2">
+                {MIC_PREFS.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setMic(p)}
+                    className={`px-2 py-2 rounded-lg border text-xs transition-all ${
+                      mic === p
+                        ? 'border-qp-500/50 bg-qp-500/10 text-white'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20'
+                    }`}
+                  >
+                    {MIC_PREF_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gender preference */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-white/60">Match gender</label>
+                <button
+                  onClick={() =>
+                    setGendersWanted(gendersWanted.length === GENDERS.length ? [] : [...GENDERS])
+                  }
+                  className="text-[11px] text-qp-300 hover:text-qp-200 transition-colors"
+                >
+                  {gendersWanted.length === GENDERS.length ? 'Clear' : 'Select all'}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {GENDERS.map((g) => (
+                  <Chip
+                    key={g}
+                    label={g === 'non-binary' ? 'Non-binary' : g.charAt(0).toUpperCase() + g.slice(1)}
+                    active={gendersWanted.includes(g)}
+                    onToggle={() =>
+                      setGendersWanted((prev) =>
+                        prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+                      )
+                    }
+                  />
+                ))}
+              </div>
+              {gendersWanted.length === 0 && (
+                <p className="text-[10px] text-white/30 mt-1.5">No filter — matching any.</p>
+              )}
+            </div>
+
+            {/* Age range */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-white/60">Age range</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={ageMinFocused ? ageMinText : ageMin}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 2)
+                      setAgeMinText(raw)
+                      if (raw !== '') {
+                        const val = parseInt(raw)
+                        if (val >= 16 && val < ageMax) setAgeMin(val)
+                      }
+                    }}
+                    onFocus={() => {
+                      setAgeMinFocused(true)
+                      setAgeMinText(String(ageMin))
+                    }}
+                    onBlur={() => {
+                      setAgeMinFocused(false)
+                      const val = parseInt(ageMinText) || 16
+                      const clamped = Math.max(16, Math.min(val, ageMax - 1))
+                      setAgeMin(clamped)
+                      setAgeMinText(String(clamped))
+                    }}
+                    className={cn(
+                      'w-10 h-8 bg-white/5 border rounded-lg text-center text-sm font-bold text-white focus:outline-none transition-all',
+                      ageMinFocused && !isValidAgeMin(ageMinText)
+                        ? 'border-white/5 text-white/30'
+                        : 'border-white/10 focus:border-qp-500/50'
+                    )}
+                  />
+                  <span className="text-white/20 text-xs">—</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={ageMaxFocused ? ageMaxText : ageMax}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 2)
+                      setAgeMaxText(raw)
+                      if (raw !== '') {
+                        const val = parseInt(raw)
+                        if (val > ageMin && val <= 99) setAgeMax(val)
+                      }
+                    }}
+                    onFocus={() => {
+                      setAgeMaxFocused(true)
+                      setAgeMaxText(String(ageMax))
+                    }}
+                    onBlur={() => {
+                      setAgeMaxFocused(false)
+                      const val = parseInt(ageMaxText) || 99
+                      const clamped = Math.max(ageMin + 1, Math.min(val, 99))
+                      setAgeMax(clamped)
+                      setAgeMaxText(String(clamped))
+                    }}
+                    className={cn(
+                      'w-10 h-8 bg-white/5 border rounded-lg text-center text-sm font-bold text-white focus:outline-none transition-all',
+                      ageMaxFocused && !isValidAgeMax(ageMaxText)
+                        ? 'border-white/5 text-white/30'
+                        : 'border-white/10 focus:border-qp-500/50'
+                    )}
+                  />
+                </div>
+              </div>
+              <RangeSlider
+                min={16}
+                max={99}
+                valueMin={ageMin}
+                valueMax={ageMax}
+                onChangeMin={(v) => {
+                  setAgeMin(v)
+                  setAgeMinText(String(v))
+                }}
+                onChangeMax={(v) => {
+                  setAgeMax(v)
+                  setAgeMaxText(String(v))
+                }}
+              />
+            </div>
+
+            {/* Skip-existing-duos toggle */}
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white/80">Skip existing duos</p>
+                <p className="text-[11px] text-white/40">
+                  Don&apos;t match me with people I&apos;m already duos with.
+                </p>
+              </div>
+              <span
+                role="switch"
+                aria-checked={excludeDuos}
+                onClick={() => setExcludeDuos((v) => !v)}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                  excludeDuos ? 'bg-qp-500' : 'bg-white/10'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                    excludeDuos ? 'translate-x-[22px]' : 'translate-x-0.5'
+                  }`}
+                />
+              </span>
+            </label>
           </div>
 
-          <button onClick={startSearch} className="btn-primary w-full flex items-center justify-center gap-2">
-            <Shuffle size={18} />
-            Find Queue
-          </button>
+          {/* Start button — no game filter is treated as "any game". */}
+          <Button className="w-full" onClick={startSearch}>
+            <span className="flex items-center gap-2 justify-center">
+              <Swords size={18} />
+              Find players
+            </span>
+          </Button>
         </div>
       </AppShell>
     )
