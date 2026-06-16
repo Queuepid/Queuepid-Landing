@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { Heart, X, Star, RotateCcw, Zap } from 'lucide-react'
 import { AppShell } from '../_components/layout/AppShell'
 import { SwipeCard } from '../_components/discover/SwipeCard'
@@ -9,12 +10,19 @@ import { mockCards } from '../_data/mock-cards'
 import { mockUser } from '../_data/mock-user'
 import type { DiscoverCard } from '../_data/types'
 
+// R3F can't SSR — load the 3D avatar viewer client-side only.
+const AvatarViewer3D = dynamic(
+  () => import('../_components/discover/AvatarViewer3D').then((m) => ({ default: m.AvatarViewer3D })),
+  { ssr: false }
+)
+
 export default function DiscoverPage() {
   const [cards, setCards] = useState<DiscoverCard[]>([...mockCards])
   const [superlikeCount] = useState(3)
   const [likeCount, setLikeCount] = useState(0)
   const [showMatchBanner, setShowMatchBanner] = useState(false)
   const [pendingExit, setPendingExit] = useState<'left' | 'right' | null>(null)
+  const [viewer3D, setViewer3D] = useState<string | null>(null)
   const processingRef = useRef(false)
 
   const handleSwipe = useCallback((direction: 'left' | 'right', superlike = false) => {
@@ -88,6 +96,7 @@ export default function DiscoverPage() {
                 stackIndex={i}
                 exitDirection={i === 0 ? pendingExit : null}
                 onExitStart={handleExitStart}
+                onView3D={(username) => setViewer3D(username)}
               />
             ))
           )}
@@ -141,6 +150,11 @@ export default function DiscoverPage() {
             <p className="text-sm text-white/60">You and {topCard?.display_name ?? 'someone'} liked each other</p>
           </div>
         </div>
+      )}
+
+      {/* 3D Minecraft avatar viewer */}
+      {viewer3D && (
+        <AvatarViewer3D avatarUsername={viewer3D} onClose={() => setViewer3D(null)} />
       )}
     </AppShell>
   )

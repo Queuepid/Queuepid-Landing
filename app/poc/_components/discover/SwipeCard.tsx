@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, forwardRef, type PointerEvent } from 'react'
 import Image from 'next/image'
-import { Volume2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Volume2, Sparkles, Box, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@poc/_data/utils'
 import { Chip } from '../ui/Chip'
 import type { DiscoverCard } from '@poc/_data/types'
@@ -13,6 +13,8 @@ interface SwipeCardProps {
   stackIndex: number
   exitDirection?: 'left' | 'right' | null
   onExitStart?: () => void
+  /** Called when the user taps "View in 3D" on a Minecraft avatar photo */
+  onView3D?: (avatarUsername: string) => void
 }
 
 const SWIPE_THRESHOLD = 120
@@ -20,7 +22,7 @@ const EXIT_X = 600
 const TRANSITION = 'transform 0.35s cubic-bezier(0.2,0.8,0.2,1), opacity 0.35s ease, box-shadow 0.35s ease'
 
 export const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(function SwipeCard(
-  { card, onSwipe, stackIndex, exitDirection = null, onExitStart },
+  { card, onSwipe, stackIndex, exitDirection = null, onExitStart, onView3D },
   forwardedRef
 ) {
   const isTop = stackIndex === 0
@@ -186,7 +188,14 @@ export const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(function Swi
       <div className="relative w-full h-full">
         {currentPhoto ? (
           <>
-            {!imageLoaded && (
+            {/* Avatar photos sit on a dark gradient and are contained (not
+                cropped) so the whole player model is visible. */}
+            {currentPhoto.avatar_type ? (
+              <div className="absolute inset-0 bg-[#16132a]">
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-qp-500/10 blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-accent-500/10 blur-[100px]" />
+              </div>
+            ) : !imageLoaded ? (
               <div className="absolute inset-0 bg-[#16132a] flex items-center justify-center">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-qp-500/20 to-accent-500/20 border border-white/10 flex items-center justify-center animate-pulse">
@@ -195,13 +204,14 @@ export const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(function Swi
                   <div className="absolute -inset-2 rounded-3xl border-2 border-transparent border-t-qp-500/50 animate-spin" />
                 </div>
               </div>
-            )}
+            ) : null}
             <Image
               src={currentPhoto.url}
               alt={card.display_name}
               fill
               className={cn(
-                'object-cover transition-opacity duration-500',
+                'transition-opacity duration-500',
+                currentPhoto.avatar_type ? 'object-contain p-6' : 'object-cover',
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               )}
               priority={isTop}
@@ -282,6 +292,21 @@ export const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(function Swi
         >
           NOPE
         </div>
+
+        {/* View in 3D button for Minecraft avatar photos */}
+        {currentPhoto?.avatar_type === 'minecraft' && currentPhoto.avatar_username && onView3D && (
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation()
+              onView3D(currentPhoto.avatar_username!)
+            }}
+            className="absolute top-14 right-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/50 backdrop-blur-sm border border-white/15 text-white/80 text-xs font-medium hover:bg-black/70 transition-all active:scale-95"
+          >
+            <Box size={13} />
+            View in 3D
+          </button>
+        )}
 
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-5 pb-5 pt-24">
           {card.compatibility_score > 0 && (

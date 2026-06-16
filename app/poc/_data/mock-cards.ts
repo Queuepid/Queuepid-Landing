@@ -2,6 +2,42 @@ import type { DiscoverCard } from './types'
 
 export const mockCards: DiscoverCard[] = [
   {
+    user_id: 'card-mc',
+    display_name: 'Blocky',
+    age: 22,
+    bio: 'Minecraft builder & redstone nerd. SMP survival, the occasional Hypixel grind. Tap “View in 3D” 👀',
+    gender: 'non-binary',
+    intentions: ['casual', 'gaming_partner'],
+    interests: [
+      { id: 'cmi1', name: 'Minecraft', category: 'games' },
+      { id: 'cmi2', name: 'Redstone', category: 'hobbies' },
+      { id: 'cmi3', name: 'Building', category: 'art' },
+      { id: 'cmi4', name: 'Lo-fi', category: 'music' },
+    ],
+    photos: [
+      {
+        id: 'cmp1',
+        url: 'https://mc-heads.net/player/Technoblade/512',
+        is_primary: true,
+        order: 0,
+        created_at: '2024-01-01T00:00:00Z',
+        avatar_type: 'minecraft',
+        avatar_username: 'Technoblade',
+      },
+      { id: 'cmp2', url: 'https://picsum.photos/seed/blocky/400/600', is_primary: false, order: 1, created_at: '2024-01-01T00:00:00Z' },
+    ],
+    voice_notes: [],
+    cosmetic: null,
+    badges: [],
+    level: 5,
+    compatibility_score: 89,
+    shared_interests: [
+      { id: 'cmi1', name: 'Minecraft', category: 'games' },
+      { id: 'cmi4', name: 'Lo-fi', category: 'music' },
+    ],
+    distance_label: 'nearby',
+  },
+  {
     user_id: 'card-1',
     display_name: 'Aria',
     age: 21,
@@ -17,6 +53,15 @@ export const mockCards: DiscoverCard[] = [
     photos: [
       { id: 'c1p1', url: 'https://picsum.photos/seed/aria1/400/600', is_primary: true, order: 0, created_at: '2024-01-01T00:00:00Z' },
       { id: 'c1p2', url: 'https://picsum.photos/seed/aria2/400/600', is_primary: false, order: 1, created_at: '2024-01-01T00:00:00Z' },
+      {
+        id: 'c1p3',
+        url: 'https://mc-heads.net/player/Dinnerbone/512',
+        is_primary: false,
+        order: 2,
+        created_at: '2024-01-01T00:00:00Z',
+        avatar_type: 'minecraft',
+        avatar_username: 'Dinnerbone',
+      },
     ],
     voice_notes: [],
     cosmetic: null,
