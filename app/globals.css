@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 15 15 30;
+    --foreground: 245 245 255;
+  }
+
+  html {
+    @apply bg-surface;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply text-white antialiased;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+    overflow-x: hidden;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+
+  .glass-hover {
+    @apply glass transition-all duration-200 hover:bg-white/10 hover:border-white/20;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-qp-400 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-qp-500 to-qp-600
+           rounded-xl font-semibold text-white
+           transition-all duration-200
+           hover:from-qp-400 hover:to-qp-500 hover:shadow-lg hover:shadow-qp-500/25
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 glass font-semibold text-white
+           transition-all duration-200
+           hover:bg-white/10
+           active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 text-white/70 font-medium
+           transition-all duration-200
+           hover:text-white hover:bg-white/5
+           rounded-lg;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
+           text-white placeholder:text-white/30
+           focus:outline-none focus:border-qp-500/50 focus:ring-1 focus:ring-qp-500/25
+           transition-all duration-200;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium
+           bg-white/10 text-white/80 border border-white/5;
+  }
+
+  .chip-active {
+    @apply chip bg-qp-500/20 text-qp-300 border-qp-500/30;
+  }
+
+  .swipe-card {
+    @apply absolute inset-0 glass rounded-3xl overflow-hidden
+           touch-none select-none cursor-grab active:cursor-grabbing;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(
+      110deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.05) 37%,
+      transparent 63%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+
+  .neon-text {
+    text-shadow:
+      0 0 10px rgba(236, 72, 153, 0.5),
+      0 0 30px rgba(236, 72, 153, 0.3),
+      0 0 60px rgba(168, 85, 247, 0.2);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #ec4899, #a855f7, #3b82f6, #ec4899);
+    background-size: 300% 300%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .range-thumb::-webkit-slider-thumb {
+    @apply appearance-none w-5 h-5 rounded-full bg-white border-2 border-qp-500 cursor-pointer pointer-events-auto
+           shadow-[0_0_10px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all;
+  }
+
+  .range-thumb::-moz-range-thumb {
+    @apply appearance-none w-5 h-5 rounded-full bg-white border-2 border-qp-500 cursor-pointer pointer-events-auto
+           shadow-[0_0_10px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all border-none;
+  }
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
