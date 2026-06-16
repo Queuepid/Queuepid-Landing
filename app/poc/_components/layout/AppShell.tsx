@@ -15,7 +15,7 @@ export function AppShell({ children, title, showLogo, hideNav }: AppShellProps) 
   return (
     <div className="min-h-screen flex flex-col">
       <TopBar title={title} showLogo={showLogo} />
-      <main className="flex-1 pb-20 max-w-lg mx-auto w-full">{children}</main>
+      <main className={`flex-1 max-w-lg mx-auto w-full ${hideNav ? '' : 'pb-20'}`}>{children}</main>
       {!hideNav && <BottomNav />}
     </div>
   )

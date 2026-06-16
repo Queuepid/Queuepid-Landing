@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Queuepid — Find Your Match</title>
+<meta name="description" content="Interest-based matchmaking platform. Find people who share your passions.">
+<meta name="theme-color" content="#05050f">
+<meta property="og:title" content="Queuepid — Find Your Match">
+<meta property="og:description" content="Interest-based matchmaking platform. Find people who share your passions.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M16 28C9 22 3 17.5 3 11.5 3 7.4 6.4 4 10.5 4c2.2 0 4.2 1 5.5 2.6C17.3 5 19.3 4 21.5 4 25.6 4 29 7.4 29 11.5c0 6-6 10.5-13 16.5z'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:'Unbounded';font-style:normal;font-weight:900;font-display:swap;src:url(data:font/woff2;base64,d09GMgABAAAAAAW8ABAAAAAACygAAAVeAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGiIbgkwcgSgGYD9TVEFUKgBcEQgKh1SGLAscAAE2AiQDNAQgBYRKByAMBxtOCcgEAqJNm7u9GJJQ8yMmhBCtRGhaKkTESRpiSEXpuyry4sr5/+3X6oo2k4ZY53RqnL1/kPkP84dKEpNQlkiFJJ5cQoJSKclKx2w4+RoVnXrGpZ45t/5IgIGwp4xAQkFVLPHarceAq7fryKYMsclR08LC4T0eN0LuQd90McpdWdajcXLUM+3nshdGIaFb8BNhFqPcHY+Mx6DvNRxHHHGmFX9RFmv/RC3av9rfR1lLeb5I+zVY8R8tO3P9rf2xJmXWkAQEvAkoFK/zDOeNMZgKUCwVwNBlSvKUFcSVAmkQMAUECnKps57Nm88jUBun/S2jvw2Pucpa9V4rMfauzSrJ1U0tKslOe5dKcot9625pcmoi58myZkn+lITsnhl2s9jjnnCR2FUpPgbGK1nZGexjmRc7tALlWMCok08a5w2iSWwQRw27UT5B7tC5zuU2Uh82qVPc8GXIH+YP799SZ6+Dx1Dxi081vTpF+UFaDdK5r76GRrlS/kGTKrbshgAtnE9cibzLNe6TFOHRqlqDOOqNVGiQ8gS5SmGrpsROPxSLSiOjTDCLX9O46xoZ2b9U+1q7TbtEu1A7VzuTc3rZV0LSNJIcMmq13O1YDNJSOKWzaGlTKPHkSVAxzRPyGoSu5G80meJNppSYeJNpQaxBMZlS+vWKbjKK22HEIH+wyzhqaDshHJYORyL6E0MhAsFg24mRiHQ4HNadEAwSCIWS2trbuo0dnV1BLNfRTh0I3P68/sQXn1xzyRMvqHXP3TbI0dsgGVsuueWBczD/Jv2JEScvBftb2xVdv56lmGVdd6Q5cFYPH76Do+mxlRc/DrqT651CLwde15/44J1SazAYbG8Term1/4Qmot5+EQi69KO61s/RKtSy4iX0Wv/9Xz/89e+sx4Hv337v7RLvVurLC+y7116eefxLg3O37dypYl8aPH47/LjPy9vTLVsLCxHbnl6O12NdGUp3pPcXHhVf+XJmYWR1QnfdcQedTS0IOY7v7hH4si1NB7fXH7eu13yFUTW//0kg8On7ZtV4JafMm7yuZvCEnu6+Y690jk2e3VV/jeebE9uqLbZX31LTci9fY82uajdXV/hXLLvgz3OyyN9+cNnBZc4o+RXRUy585JzN0TueTOitO+7Q9sbWA07H8T3djuMPOFubDjprjyvrNl/ZUOTN005749/3CrJNjd6NG3Y3bIqq+SIv5bmhtO1php66/dPl15oyftsenct4mdvGq2rLS0pqy6vsNeUlJTXljFV8bt/7/X1ZYzJrz1K11182/Y0/fZrjTV1yuv2GtIvse9WK0/67woKcbuE2xqKLbpUunIIZpHLR6Gn24p47/SN/Tj/cn7Th93ghvrqFP6w85Uu98KOelMboLdEb4o5RfuDQ5RAG0hacOO7i6C3/VcUd8x2+3yjcbBCvo4p2Vso/sEzqwyz1YV06xMY+IoMsvoOeQsF1jeFkRi4ljgZi+aRtYx0Hv9CBCcAt0upttcTq9mhIkknklySBjceWK9eTYmhjR1Isq6lJTKSExQMkBQM6ILgYNuJmkGEmabdO3S7G8U1H+pjFyzryg24vw3hsVacPL5bsMyZwY2EGDy7yqcdBDa1MM8QMfqYZYVQtz+M2tpHH6K0zTKNSgIVSrBSwHhdj+FTVDG6k7caKhbXdNsqw8PTdSTE5uBirbKx11Vp3ZS/D/tRhp471XTA2sQv//loeWkZVVbs8y55hS1H+sooNKzZsqLQwziiquWpA5ww7GHVhwHb8kkKszb2oZMrLLiaudvoZwuLwDFNnIIhyaR5lTDSIT/nNzNIcZf19otFW2kXYKHvfJ2lH36acDAAAAA==) format('woff2')}
+@font-face{font-family:'Chakra Petch';font-style:normal;font-weight:300;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2')}
+@font-face{font-family:'Chakra Petch';font-style:normal;font-weight:600;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2')}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --cyan:#22d3ee;
+  --indigo:#818cf8;
+  --bg:#05050f;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-family:'Chakra Petch',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ---- atmosphere: pre-blurred gradient orbs, transform-only motion ---- */
+.orb{
+  position:fixed;
+  border-radius:50%;
+  pointer-events:none;
+  will-change:transform;
+}
+.orb-a{
+  width:90vmax;height:90vmax;
+  left:-20vmax;top:-35vmax;
+  background:radial-gradient(circle,rgba(34,211,238,.14) 0%,rgba(34,211,238,.05) 40%,transparent 68%);
+  animation:drift-a 19s ease-in-out infinite alternate;
+}
+.orb-b{
+  width:80vmax;height:80vmax;
+  right:-25vmax;bottom:-30vmax;
+  background:radial-gradient(circle,rgba(99,102,241,.16) 0%,rgba(99,102,241,.06) 40%,transparent 68%);
+  animation:drift-b 23s ease-in-out infinite alternate;
+}
+@keyframes drift-a{
+  from{transform:translate(0,0) scale(1)}
+  to{transform:translate(8vmax,6vmax) scale(1.15)}
+}
+@keyframes drift-b{
+  from{transform:translate(0,0) scale(1.1)}
+  to{transform:translate(-7vmax,-5vmax) scale(.95)}
+}
+
+/* ---- perspective grid floor ---- */
+.floor{
+  position:fixed;
+  inset:auto 0 0 0;
+  height:48vh;
+  perspective:380px;
+  overflow:hidden;
+  pointer-events:none;
+  -webkit-mask-image:linear-gradient(to top,#000 15%,transparent 80%);
+  mask-image:linear-gradient(to top,#000 15%,transparent 80%);
+}
+/* vertical lines: static, run to the horizon (no flicker along motion axis) */
+.floor::before,
+/* horizontal lines: animated, faded out by plane distance before they
+   compress below 1px and start strobing */
+.floor::after{
+  content:'';
+  position:absolute;
+  left:-60%;right:-60%;bottom:-96px;height:300%;
+  background-size:96px 96px;
+  transform-origin:50% 100%;
+  transform:rotateX(60deg);
+}
+.floor::before{
+  background-image:linear-gradient(90deg,rgba(99,102,241,.5) 2px,transparent 2px);
+}
+.floor::after{
+  background-image:linear-gradient(rgba(34,211,238,.5) 2px,transparent 2px);
+  -webkit-mask-image:linear-gradient(to top,#000 340px,transparent 640px);
+  mask-image:linear-gradient(to top,#000 340px,transparent 640px);
+  animation:scroll 9s linear infinite;
+  will-change:transform;
+}
+@keyframes scroll{
+  from{transform:rotateX(60deg) translateY(0)}
+  to{transform:rotateX(60deg) translateY(96px)}
+}
+
+/* ---- film grain ---- */
+.grain{
+  position:fixed;inset:0;
+  pointer-events:none;
+  opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- content ---- */
+main{
+  position:relative;
+  text-align:center;
+  padding:0 1.5rem;
+}
+
+h1{
+  font-family:'Unbounded',sans-serif;
+  font-weight:900;
+  font-size:clamp(2rem,9.5vw,7rem);
+  line-height:1;
+  letter-spacing:-.02em;
+  animation:rise .7s cubic-bezier(.2,.7,.2,1) .1s both;
+}
+/* gradient wordmark + glow duplicate behind it */
+.glow{
+  position:relative;
+  display:inline-block;
+  background:linear-gradient(100deg,#e7fbff 25%,var(--cyan) 50%,var(--indigo) 75%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.glow::before{
+  content:'Queuepid';
+  position:absolute;inset:0;
+  background:inherit;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  filter:blur(26px) saturate(1.8);
+  opacity:.6;
+  z-index:-1;
+}
+
+.tagline{
+  margin-top:1.4rem;
+  font-weight:300;
+  font-size:clamp(1rem,2.4vw,1.3rem);
+  letter-spacing:.06em;
+  color:rgba(231,235,255,.66);
+  animation:rise .7s cubic-bezier(.2,.7,.2,1) .28s both;
+}
+
+/* ---- waitlist form ---- */
+.waitlist{
+  margin-top:2.6rem;
+  animation:rise .7s cubic-bezier(.2,.7,.2,1) .46s both;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.75rem;
+}
+.waitlist-box{
+  display:flex;
+  align-items:center;
+  gap:0;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(34,211,238,.15);
+  border-radius:14px;
+  padding:5px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  transition:border-color .3s,box-shadow .3s;
+  width:min(100%,440px);
+}
+.waitlist-box:focus-within{
+  border-color:rgba(34,211,238,.45);
+  box-shadow:0 0 24px rgba(34,211,238,.1),0 0 60px rgba(99,102,241,.06);
+}
+.waitlist-box input[type="email"]{
+  flex:1;
+  border:none;
+  background:transparent;
+  color:#fff;
+  font-family:'Chakra Petch',system-ui,sans-serif;
+  font-size:1.05rem;
+  padding:.75rem 1rem;
+  outline:none;
+  min-width:0;
+}
+.waitlist-box input[type="email"]::placeholder{
+  color:rgba(231,235,255,.5);
+}
+.waitlist-box button{
+  flex-shrink:0;
+  border:none;
+  cursor:pointer;
+  font-family:'Chakra Petch',system-ui,sans-serif;
+  font-weight:600;
+  font-size:.92rem;
+  letter-spacing:.04em;
+  padding:.75rem 1.5rem;
+  border-radius:10px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo));
+  transition:opacity .2s,transform .15s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+  min-width:130px;
+}
+.waitlist-box button:hover:not(:disabled){
+  opacity:.88;
+  transform:translateY(-1px);
+}
+.waitlist-box button:active:not(:disabled){
+  transform:translateY(0) scale(.98);
+}
+.waitlist-box button:disabled{
+  cursor:not-allowed;
+  opacity:.6;
+}
+
+/* privacy consent note */
+.privacy-note{
+  margin-top:1.1rem;
+  font-size:.85rem;
+  letter-spacing:.03em;
+  color:rgba(231,235,255,.55);
+  animation:rise .7s cubic-bezier(.2,.7,.2,1) .6s both;
+}
+.privacy-note a{
+  color:rgba(34,211,238,.85);
+  text-decoration:none;
+}
+.privacy-note a:hover{
+  color:var(--cyan);
+  text-decoration:underline;
+}
+
+/* honeypot — hidden from humans, visible to form-filling bots */
+.hp-field{
+  position:absolute;
+  left:-9999px;
+  width:1px;height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* spinner */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* feedback messages */
+.waitlist-msg{
+  font-size:.82rem;
+  letter-spacing:.02em;
+  min-height:1.4em;
+  transition:opacity .3s;
+}
+.waitlist-msg.error{color:#f87171}
+.waitlist-msg.success{color:var(--cyan)}
+
+/* success state */
+.waitlist-success{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+  animation:rise .5s cubic-bezier(.2,.7,.2,1) both;
+}
+.waitlist-success .check{
+  width:44px;height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo));
+  display:grid;place-items:center;
+}
+.waitlist-success .check svg{
+  width:22px;height:22px;
+  stroke:#fff;stroke-width:2.5;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+.waitlist-success p{
+  font-weight:600;
+  font-size:1rem;
+  color:rgba(231,235,255,.85);
+}
+.waitlist-success .sub{
+  font-weight:300;
+  font-size:.82rem;
+  color:rgba(231,235,255,.45);
+}
+
+@keyframes shimmer{
+  to{background-position:-200% 0}
+}
+
+@keyframes rise{
+  from{opacity:0;transform:translateY(26px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Touch devices: backdrop-filter triggers a WebKit bug that draws the
+   text caret offset from the input, and a locked viewport keeps iOS from
+   scrolling the focused field into view above the keyboard. Trade the
+   blur for a slightly more opaque fill and allow natural scroll. */
+@media (hover:none) and (pointer:coarse){
+  /* Clip horizontally on html — it contains the fixed orbs via the
+     initial containing block, and clip avoids iOS's bug of ignoring
+     overflow-x:hidden when overflow-y is auto on the same element. */
+  html{overflow-x:clip}
+  html,body{height:auto}
+  /* Replace grid centering (fragile auto-track sizing) with flex so the
+     content is pinned to the viewport width and reliably centered. */
+  body{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    min-height:100vh;
+    min-height:100svh;
+    overflow-y:auto;
+  }
+  main{width:100%}
+  .waitlist-box{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(255,255,255,.07);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="floor"></div>
+<main>
+  <h1><span class="glow">Queuepid</span></h1>
+  <p class="tagline">Matchmaking for gamers.</p>
+
+  <div class="waitlist" id="waitlist-section">
+    <form class="waitlist-box" id="waitlist-form" autocomplete="off">
+      <input type="email" id="waitlist-email" placeholder="Enter your email" required aria-label="Email address">
+      <input type="text" name="nickname" id="waitlist-nickname" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" id="waitlist-btn">Join Waitlist</button>
+    </form>
+    <p class="waitlist-msg" id="waitlist-msg" aria-live="polite"></p>
+  </div>
+  <p class="privacy-note">By joining, you agree to our <a href="/privacy">privacy policy</a>.</p>
+</main>
+<div class="grain"></div>
+
+<script>
+(function() {
+  const form = document.getElementById('waitlist-form');
+  const input = document.getElementById('waitlist-email');
+  const btn = document.getElementById('waitlist-btn');
+  const msg = document.getElementById('waitlist-msg');
+  const section = document.getElementById('waitlist-section');
+
+  function setMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'waitlist-msg ' + (type || '');
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Join Waitlist';
+    }
+  }
+
+  function showSuccess() {
+    section.innerHTML =
+      '<div class="waitlist-success">' +
+        '<div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+        '<p>You\u2019re on the list!</p>' +
+        '<p class="sub">We\u2019ll let you know when Queuepid launches.</p>' +
+      '</div>';
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    setMsg('', '');
+
+    const email = input.value.trim();
+    if (!email) {
+      setMsg('Please enter your email address.', 'error');
+      input.focus();
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          nickname: document.getElementById('waitlist-nickname').value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMsg(data.error || 'Something went wrong. Please try again.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      if (data.alreadySubscribed) {
+        setMsg('You\u2019re already on the waitlist! \ud83d\udc98', 'success');
+        setLoading(false);
+        return;
+      }
+
+      showSuccess();
+    } catch (err) {
+      setMsg('Network error. Please check your connection and try again.', 'error');
+      setLoading(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -62,13 +62,16 @@ export default function DuosPage() {
   const [inputText, setInputText] = useState('')
   const [botTyping, setBotTyping] = useState(false)
   const responseIndexRef = useRef(0)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
+  // Scroll the messages container only — never the window — so the input bar
+  // stays pinned at the bottom of the viewport.
   useEffect(() => {
     if (view === 'chat') {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      const c = messagesContainerRef.current
+      if (c) c.scrollTop = c.scrollHeight
     }
-  }, [messages, view])
+  }, [messages, view, botTyping])
 
   const sendMessage = () => {
     if (!inputText.trim() || botTyping) return
@@ -156,7 +159,7 @@ export default function DuosPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 hide-scrollbar">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2 hide-scrollbar">
           {messages.map((msg) => {
             const isOwn = msg.sender_id === MOCK_SELF_ID
             return (
@@ -183,8 +186,6 @@ export default function DuosPage() {
               </div>
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}

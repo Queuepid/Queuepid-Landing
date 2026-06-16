@@ -21,10 +21,12 @@ import {
   REGION_LABELS,
   MIC_PREFS,
   MIC_PREF_LABELS,
+  INTENTIONS,
   INTENTION_LABELS,
   type MicPref,
   type Region,
   type GameMode,
+  type Intention,
 } from '../_data/types'
 import type { Message } from '../_data/types'
 
@@ -40,6 +42,7 @@ export default function QueuePage() {
   const [mic, setMic] = useState<MicPref>('either')
   const [ageMin, setAgeMin] = useState(16)
   const [ageMax, setAgeMax] = useState(30)
+  const [intentions, setIntentions] = useState<Intention[]>([])
   const [showFilters, setShowFilters] = useState(false)
 
   // Chat state
@@ -49,12 +52,15 @@ export default function QueuePage() {
   const [partnerRevealed, setPartnerRevealed] = useState(false)
   const [duoPending, setDuoPending] = useState(false)
   const [duoMatched, setDuoMatched] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Scroll the messages container only — never the window — so the input bar
+  // stays pinned at the bottom of the viewport.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    const c = messagesContainerRef.current
+    if (c) c.scrollTop = c.scrollHeight
+  }, [messages, status])
 
   useEffect(() => {
     return () => {
@@ -121,6 +127,12 @@ export default function QueuePage() {
   const toggleGame = (g: string) => {
     setUntrackedSelected((prev) =>
       prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+    )
+  }
+
+  const toggleIntention = (i: Intention) => {
+    setIntentions((prev) =>
+      prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]
     )
   }
 
@@ -213,8 +225,13 @@ export default function QueuePage() {
                 <div>
                   <h3 className="text-sm font-semibold text-white/70 mb-2">Looking for</h3>
                   <div className="flex flex-wrap gap-2">
-                    {(Object.keys(INTENTION_LABELS) as (keyof typeof INTENTION_LABELS)[]).map((k) => (
-                      <Chip key={k} label={INTENTION_LABELS[k]} />
+                    {INTENTIONS.map((k) => (
+                      <Chip
+                        key={k}
+                        label={INTENTION_LABELS[k]}
+                        active={intentions.includes(k)}
+                        onToggle={() => toggleIntention(k)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -341,7 +358,7 @@ export default function QueuePage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 hide-scrollbar">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-2 space-y-2 hide-scrollbar">
           {messages.map((msg) => {
             const isOwn = msg.sender_id === MOCK_SELF_ID
             return (
@@ -358,7 +375,6 @@ export default function QueuePage() {
               </div>
             )
           })}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}

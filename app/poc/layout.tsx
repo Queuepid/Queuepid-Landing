@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
-import { BackgroundBlobs } from './_components/BackgroundBlobs'
+import { PocBackground } from './_components/PocBackground'
 
 export default function PocLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <BackgroundBlobs />
+      <PocBackground />
       {children}
     </>
   )
