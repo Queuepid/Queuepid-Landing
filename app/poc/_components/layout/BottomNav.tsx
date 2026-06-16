@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@poc/_data/utils'
-import { Compass, Shuffle, User, Settings } from 'lucide-react'
+import { Compass, Shuffle, Sword, User } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/poc/discover', label: 'Discover', icon: Compass },
   { href: '/poc/queue', label: 'Queue', icon: Shuffle },
+  { href: '/poc/duos', label: 'Duos', icon: Sword },
   { href: '/poc/profile', label: 'Profile', icon: User },
-  { href: '/poc/settings', label: 'Settings', icon: Settings },
 ] as const
 
 export function BottomNav() {
