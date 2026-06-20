@@ -1,65 +1,64 @@
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import { Resend } from 'resend';
+import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
 
-// Load .env.local explicitly — dotenv's default only reads `.env`, and
-// `vercel dev` doesn't reliably inject env into this api-only project.
-const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: resolve(__dirname, '..', '.env.local') });
+// Next.js loads .env.local automatically, so no manual dotenv bootstrap is needed.
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
-  const apiKey = process.env.RESEND_API_KEY;
+export async function POST(request: Request) {
+  const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
-    console.error('RESEND_API_KEY is not set. Available env keys:', Object.keys(process.env).filter(k => k.startsWith('RESEND')));
-    return res.status(500).json({ error: 'Server configuration error.' });
+    console.error(
+      'RESEND_API_KEY is not set. Available env keys:',
+      Object.keys(process.env).filter((k) => k.startsWith('RESEND'))
+    )
+    return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 })
   }
 
-  const resend = new Resend(apiKey);
-  const AUDIENCE_ID = process.env.RESEND_WAITLIST_ID;
+  const resend = new Resend(apiKey)
+  const AUDIENCE_ID = process.env.RESEND_WAITLIST_ID
 
+  let body: { email?: string; nickname?: string } = {}
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
+  }
 
-  const { email, nickname } = req.body || {};
+  const { email, nickname } = body
 
   // Honeypot: hidden field humans never fill. Return a fake success so
   // bots don't learn they were filtered.
   if (nickname) {
-    return res.status(200).json({ success: true });
+    return NextResponse.json({ success: true })
   }
 
   if (!email || typeof email !== 'string') {
-    return res.status(400).json({ error: 'Email is required.' });
+    return NextResponse.json({ error: 'Email is required.' }, { status: 400 })
   }
 
   // Basic server-side email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Please enter a valid email address.' });
+    return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 })
   }
 
   try {
     // 1. Add contact to the waitlist audience
-    let alreadySubscribed = false;
+    let alreadySubscribed = false
 
     if (AUDIENCE_ID) {
       const { error: contactError } = await resend.contacts.create({
         email,
         unsubscribed: false,
         audienceId: AUDIENCE_ID,
-      });
+      })
 
       if (contactError) {
         // If the contact already exists, treat it gracefully
-        const msg = contactError.message || '';
+        const msg = contactError.message || ''
         if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
-          alreadySubscribed = true;
+          alreadySubscribed = true
         } else {
-          console.error('Contact creation error:', contactError);
+          console.error('Contact creation error:', contactError)
         }
       }
     }
@@ -118,19 +117,23 @@ export default async function handler(req, res) {
   </table>
 </body>
 </html>`,
-    });
+    })
 
     if (emailError) {
-      console.error('Email send error:', emailError);
+      console.error('Email send error:', emailError)
       // Still return success if contact was added — email delivery can be retried
     }
 
-    return res.status(200).json({
-      success: true,
-      alreadySubscribed,
-    });
+    return NextResponse.json({ success: true, alreadySubscribed })
   } catch (err) {
-    console.error('Waitlist error:', err);
-    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    console.error('Waitlist error:', err)
+    return NextResponse.json(
+      { error: 'Something went wrong. Please try again.' },
+      { status: 500 }
+    )
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
 }
