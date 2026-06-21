@@ -94,18 +94,23 @@ export async function POST(request: NextRequest) {
     let alreadySubscribed = false
 
     if (AUDIENCE_ID) {
-      const { error: contactError } = await resend.contacts.create({
-        email,
-        unsubscribed: false,
-        audienceId: AUDIENCE_ID,
-      })
+      // contacts.create() is idempotent — it upserts silently, so we check existence first
+      const { data: listData, error: listError } = await resend.contacts.list({ audienceId: AUDIENCE_ID })
+      if (listError) {
+        console.error('Contact list error:', listError)
+      } else {
+        alreadySubscribed = (listData?.data ?? []).some(
+          (c: { email: string }) => c.email.toLowerCase() === email.toLowerCase()
+        )
+      }
 
-      if (contactError) {
-        // If the contact already exists, treat it gracefully
-        const msg = contactError.message || ''
-        if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
-          alreadySubscribed = true
-        } else {
+      if (!alreadySubscribed) {
+        const { error: contactError } = await resend.contacts.create({
+          email,
+          unsubscribed: false,
+          audienceId: AUDIENCE_ID,
+        })
+        if (contactError) {
           console.error('Contact creation error:', contactError)
         }
       }
