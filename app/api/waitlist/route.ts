@@ -1,9 +1,53 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
 // Next.js loads .env.local automatically, so no manual dotenv bootstrap is needed.
 
-export async function POST(request: Request) {
+async function sendDiscordNotification(email: string, ip: string) {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL
+  if (!webhookUrl) return
+
+  let geoFields: { name: string; value: string; inline?: boolean }[] = [
+    { name: 'Location', value: 'Unknown', inline: false },
+  ]
+
+  try {
+    const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,regionName,city,lat,lon,isp,query`)
+    if (geoRes.ok) {
+      const geo = await geoRes.json()
+      if (geo.status === 'success') {
+        geoFields = [
+          { name: 'Location', value: `${geo.city}, ${geo.regionName}, ${geo.country}`, inline: false },
+          { name: 'Coordinates', value: `${geo.lat}, ${geo.lon}`, inline: true },
+          { name: 'ISP', value: geo.isp || 'Unknown', inline: true },
+        ]
+      }
+    }
+  } catch (err) {
+    console.error('ip-api lookup error:', err)
+  }
+
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      embeds: [
+        {
+          title: '💘 New Waitlist Signup',
+          color: 0x0ea5b7,
+          fields: [
+            { name: 'Email', value: email, inline: true },
+            { name: 'IP', value: ip, inline: true },
+            ...geoFields,
+          ],
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    }),
+  }).catch((err) => console.error('Discord webhook error:', err))
+}
+
+export async function POST(request: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
     console.error(
@@ -15,6 +59,10 @@ export async function POST(request: Request) {
 
   const resend = new Resend(apiKey)
   const AUDIENCE_ID = process.env.RESEND_WAITLIST_ID
+
+  // Extract client IP (Vercel sets x-forwarded-for)
+  const forwarded = request.headers.get('x-forwarded-for')
+  const ip = forwarded ? forwarded.split(',')[0].trim() : (request.headers.get('x-real-ip') ?? 'unknown')
 
   let body: { email?: string; nickname?: string } = {}
   try {
@@ -122,6 +170,11 @@ export async function POST(request: Request) {
     if (emailError) {
       console.error('Email send error:', emailError)
       // Still return success if contact was added — email delivery can be retried
+    }
+
+    // Fire Discord notification (non-blocking, never fails the response)
+    if (!alreadySubscribed) {
+      sendDiscordNotification(email, ip).catch(() => {})
     }
 
     return NextResponse.json({ success: true, alreadySubscribed })
