@@ -116,7 +116,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Send confirmation email
+    // 2. Send confirmation email (only on first signup)
+    if (alreadySubscribed) {
+      return NextResponse.json({ success: true, alreadySubscribed })
+    }
+
     const { error: emailError } = await resend.emails.send({
       from: 'Queuepid <hello@queuepid.gg>',
       to: [email],
